@@ -10,7 +10,7 @@ from secure import API_KEY
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 # GLOBAL VARIABLES
-Concerts = Scrapper()
+Concert_scrapper = Scrapper()
 default_message = """Если ты хочешь получить расписание на неделю - нажми /menu
 Если тебе нужно расписание на определенную дату - напиши ее в чат в формате ДД.ММ
 (где ДД - число, а ММ - месяц, например, 03.09 - третье сентября)"""
@@ -34,7 +34,7 @@ def menu(update: Update, context: CallbackContext):
     update.message.reply_text('Какое расписание тебя интересует?', reply_markup=reply_markup)
 
 def date(update: Update, context: CallbackContext):
-    message = Concerts.get_day(update.message.text)
+    message = Concert_scrapper.get_day(update.message.text)
     context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='HTML', disable_web_page_preview=True, text=message)
     context.bot.send_message(chat_id=update.effective_chat.id, text=default_message)
 
@@ -52,7 +52,7 @@ def button(update: Update, context: CallbackContext):
 
     query.answer()
     query.edit_message_text(text=msg)
-    messages = Concerts.get_week(query.data)
+    messages = Concert_scrapper.get_week(query.data)
     for message in messages:
         context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='HTML', disable_web_page_preview=True, text=message[1])
     
@@ -68,6 +68,7 @@ def main():
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
     updater.dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), date))
 
+    Concert_scrapper.start()
     updater.start_polling()
     updater.idle()
 

@@ -5,7 +5,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait 
 
-import datetime, threading
+from threading import Thread
+
+import datetime
 
 Months = {
     1 : "января",
@@ -31,12 +33,21 @@ Weekdays = {
     6 : "Воскресенье",
 }
 
-class Scrapper:
+class Scrapper(Thread):
     def __init__(self):
+        Thread.__init__(self)
+        self.daemon = True
         self.full_afisha = self.scrape_afisha()
         self.data_recieved_at = datetime.date.today()
-        # Add separate daemon thread for refreshing data
 
+    def run(self):
+        while True:
+            # every hour check if date has changed since last refresh, 
+            # if True - refresh cached concerts data
+            # i.e. refresh data every day around 00:00 - 01:00
+            sleep(3600)
+            if datetime.date.today() != self.data_recieved_at:
+                self.full_afisha = self.scrape_afisha()
 
 
     def get_week(self, offset='0'):
