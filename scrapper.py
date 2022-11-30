@@ -147,7 +147,7 @@ class Scrapper(Thread):
 
     def scrape_afisha(self):
         today = datetime.date.today()
-        curr_afs = self.getafisha()
+        curr_afs = self.getafisha(str(datetime.datetime.strftime(today, '%Y-%m')))
         nextmonth = datetime.date(today.year + 1, 1, 1) if today.month == 12 else datetime.date(today.year, today.month + 1, 1)
         next_afs = self.getafisha(str(datetime.datetime.strftime(nextmonth, '%Y-%m')))
         return self.stringify(curr_afs+next_afs, today)
