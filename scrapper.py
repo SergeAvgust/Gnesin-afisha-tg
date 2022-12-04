@@ -1,9 +1,8 @@
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.wait import WebDriverWait 
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
 from threading import Thread
 
@@ -88,8 +87,7 @@ class Scrapper(Thread):
         options = Options()
         options.headless = True
         options.add_argument('--window-size=1920,1200')
-        DRIVER_PATH = 'C:/Users/Serge/Programming/chromedriver/chromedriver.exe'
-        driver = webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
         driver.get('https://halls.gnesin-academy.ru/афиша?date='+requested_date)
         
         # Maybe someday move script to separate .js file
