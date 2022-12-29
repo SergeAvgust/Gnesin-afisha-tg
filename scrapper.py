@@ -50,10 +50,11 @@ class Scrapper(Thread):
 
 
     def get_week(self, offset='0'):
-        date = datetime.datetime.today()
-        if date.isocalendar()[1]+int(offset) in self.full_afisha:
-            return self.full_afisha[date.isocalendar()[1]+int(offset)]
-        return ['Sorry, no data found']
+        week = datetime.datetime.today().isocalendar()[1]
+        week = week+int(offset)-52 if week+int(offset) > 52 else week+int(offset)
+        if week in self.full_afisha:
+            return self.full_afisha[week]
+        return [(0,'Не поверишь, но я не знаю о концертах на следующей неделе! Может быть, в Гнесинке выходные?')]
 
     def get_day(self, date='0'):
         if date == '0':
