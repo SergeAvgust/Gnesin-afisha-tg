@@ -1,7 +1,7 @@
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 from threading import Thread
@@ -54,7 +54,7 @@ class Scrapper(Thread):
         week = week+int(offset)-52 if week+int(offset) > 52 else week+int(offset)
         if week in self.full_afisha:
             return self.full_afisha[week]
-        return [(0,'Не поверишь, но я не знаю о концертах на следующей неделе! Может быть, в Гнесинке выходные?')]
+        return [(0,'Не поверишь, но я не знаю о концертах на этой неделе! Может быть, в Гнесинке выходные?')]
 
     def get_day(self, date='0'):
         if date == '0':
@@ -86,38 +86,16 @@ class Scrapper(Thread):
 
     def getafisha(self, requested_date = ""):
         options = Options()
-        options.headless = True
-        options.add_argument('--window-size=1920,1200')
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         driver.get('https://halls.gnesin-academy.ru/афиша?date='+requested_date)
         
-        # Maybe someday move script to separate .js file
-        data = driver.execute_script("""
-
-        tds = document.getElementsByClassName('has-events');
-        var JSONData = [];
-        for(var i=0; i<tds.length; i++) {
-            var day = {};
-            day['date'] = tds[i].getAttribute('data-date');
-            items = tds[i].querySelectorAll('.event-details');
-            day['events'] = [];
-            items.forEach(item => {
-                var e = {};
-                title = item.querySelector('h5').children[0];
-                time = item.querySelector('.ecwd-time').children[0];
-                place = item.querySelector('.ecwd-venue').children[0].children[0];
-                e['name'] = title.textContent;
-                e['link'] = title.getAttribute('href');
-                e['time'] = time.textContent;
-                e['place'] = place.textContent;
-                day['events'].push(e);
-            });
-            JSONData.push(day)
-        }
-
-        return JSONData
-
-        """)
+        # Read js from separate file
+        with open('collector.js', 'r') as f:
+            js = f.read()
+        data = driver.execute_script(js)
         driver.close()
         return data
 
