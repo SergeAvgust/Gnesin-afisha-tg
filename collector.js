@@ -9,11 +9,17 @@ tds = document.getElementsByClassName('has-events');
                 var e = {};
                 title = item.querySelector('h5').children[0];
                 time = item.querySelector('.ecwd-time').children[0];
-                place = item.querySelector('.ecwd-venue').children[0].children[0];
+                place = 'РАМ имени Гнесиных'
+                place_pointer = item.querySelector('.ecwd-venue');
+                if (place_pointer!=null) {
+                    place = item.querySelector('.ecwd-venue').children[0].children[0];
+                    place = place.textContent
+                };
+                
                 e['name'] = title.textContent;
                 e['link'] = title.getAttribute('href');
                 e['time'] = time.textContent;
-                e['place'] = place.textContent;
+                e['place'] = place;
                 day['events'].push(e);
             });
             JSONData.push(day)
