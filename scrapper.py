@@ -38,6 +38,7 @@ class Scrapper(Thread):
         self.daemon = True
         self.full_afisha = self.scrape_afisha()
         self.data_recieved_at = datetime.date.today()
+        self.visitors = 0
 
     def run(self):
         while True:
@@ -47,6 +48,9 @@ class Scrapper(Thread):
             sleep(3600)
             if datetime.date.today() != self.data_recieved_at:
                 self.full_afisha = self.scrape_afisha()
+                with open('statistics.txt', 'a') as f:
+                    f.write(' '.join( str(s) for s in [datetime.date.today(), '===', self.visitors, '\n']))
+                self.visitors = 0
 
 
     def get_week(self, offset='0'):
@@ -57,6 +61,11 @@ class Scrapper(Thread):
         return [(0,'Не поверишь, но я не знаю о концертах на этой неделе! Может быть, в Гнесинке выходные?')]
 
     def get_day(self, date='0'):
+        today = datetime.date.today()
+        if date == 'td':
+            date = datetime.datetime.strftime(today, '%d.%m')
+        elif date == 'tm':
+            date = datetime.datetime.strftime(today+datetime.timedelta(days=1), '%d.%m')
         if date == '0':
             return 'Нужно ввести дату в формате ДД.ММ , где ДД.ММ для, к примеру, третьего сентября - 03.09'
         date = date.split('.')

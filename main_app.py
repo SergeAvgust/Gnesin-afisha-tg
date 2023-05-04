@@ -23,6 +23,8 @@ def echo(update: Update, context: CallbackContext):
 
 def menu(update: Update, context: CallbackContext):
     keyboard = [
+        [InlineKeyboardButton('Расписание на сегодня', callback_data='td')],
+        [InlineKeyboardButton('Расписание на завтра', callback_data='tm')],
         [InlineKeyboardButton('Текущая неделя', callback_data='0')],
         [InlineKeyboardButton('Следующая неделя', callback_data='1')],
         [InlineKeyboardButton('Через неделю', callback_data='2')],
@@ -37,26 +39,38 @@ def date(update: Update, context: CallbackContext):
     message = Concert_scrapper.get_day(update.message.text)
     context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='HTML', disable_web_page_preview=True, text=message)
     context.bot.send_message(chat_id=update.effective_chat.id, text=default_message)
+    Concert_scrapper.visitors+=1
 
 def button(update: Update, context: CallbackContext):
     query = update.callback_query
     msg = 'Упс! Что-то пошло не так...'
-    if query.data == '0':
-        msg = 'Расписание на текущую неделю:'
-    elif query.data == '1':
-        msg = 'Расписание на следующую неделю:'
-    elif query.data == '2':
-        msg = 'Расписание через неделю:'
-    elif query.data == '3':
-        msg = 'Расписание через две недели:'
+    if query.data in ['0', '1', '2', '3']:
+        if query.data == '0':
+            msg = 'Расписание на текущую неделю:'
+        elif query.data == '1':
+            msg = 'Расписание на следующую неделю:'
+        elif query.data == '2':
+            msg = 'Расписание через неделю:'
+        elif query.data == '3':
+            msg = 'Расписание через две недели:'
 
-    query.answer()
-    query.edit_message_text(text=msg)
-    messages = Concert_scrapper.get_week(query.data)
-    for message in messages:
-        context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='HTML', disable_web_page_preview=True, text=message[1])
-    
+        query.answer()
+        query.edit_message_text(text=msg)
+        messages = Concert_scrapper.get_week(query.data)
+        for message in messages:
+            context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='HTML', disable_web_page_preview=True, text=message[1])
+
+    else:
+        if query.data == 'td':
+            msg = 'Расписание на сегодня:'
+        elif query.data == 'tm':
+            msg = 'Расписание на завтра:'
+        query.edit_message_text(text=msg)
+        message = Concert_scrapper.get_day(query.data)
+        context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='HTML', disable_web_page_preview=True, text=message)
+        
     context.bot.send_message(chat_id=update.effective_chat.id, text=default_message)
+    Concert_scrapper.visitors+=1
 
 
 def main():
